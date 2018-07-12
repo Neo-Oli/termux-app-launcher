@@ -43,7 +43,7 @@ else
             app=`cat $cachefile | fzf -f "$pattern"`
         fi
         if [ -n "$app" ];then
-            su -c monkey -p $app -c android.intent.category.LAUNCHER 1
+            su -c monkey -p $app -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
         else
             exit 1
         fi
@@ -51,4 +51,5 @@ else
         echo "App cache is empty. Run \`$name -u\`."
     fi
 fi
-
+#Some of the root commands cause weird shell glitches
+stty sane
