@@ -10,7 +10,23 @@ show_help(){
 }
 
 update_cache(){
-    su -c 'for i in $(ls /data/data); do if [[ ! "$(dumpsys package $i | grep system)" ]]; then echo $i;fi;done'  > $cachefile
+    if [ -f "$cachefile" ];then
+        old=$(<$cachefile)
+    else
+        old=""
+    fi
+    #su -c 'for i in $(ls /data/data); do if [[ ! "$(dumpsys package $i | grep system)" ]]; then echo $i;fi;done'  > $cachefile
+    su -c 'for i in $(ls /data/data); do  echo $i;done'  > $cachefile
+    fixterm
+    new=$(<$cachefile)
+    # Will only produce output if the full versions of grep and diffutils is installed
+    diff <(echo "$old") <(echo "$new") | grep "<\|>" ||:
+}
+
+fixterm(){
+#Some of the root commands cause weird shell glitches
+stty sane 2>/dev/null ||:
+return 
 }
 
 name=$(basename $0)
@@ -44,6 +60,7 @@ else
         fi
         if [ -n "$app" ];then
             su -c monkey -p $app -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+fixterm
         else
             exit 1
         fi
@@ -51,5 +68,3 @@ else
         echo "App cache is empty. Run \`$name -u\`."
     fi
 fi
-#Some of the root commands cause weird shell glitches
-stty sane
