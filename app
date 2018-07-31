@@ -26,7 +26,7 @@ update_cache(){
 fixterm(){
 #Some of the root commands cause weird shell glitches
 stty sane 2>/dev/null ||:
-return 
+return
 }
 
 name=$(basename $0)
@@ -59,7 +59,12 @@ else
             app=`cat $cachefile | fzf -f "$pattern"`
         fi
         if [ -n "$app" ];then
+            # monkey messes with the rotation setting in android (why?), so we save it beforehand and restore it afterwards
+            # This currently has a bug; if the user has locked the rotation to landscape running app will
+            # Switch the rotation to portrait
+            accelerometer_rotation=`su -c settings get system accelerometer_rotation`
             su -c monkey -p $app -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+            su -c settings put system accelerometer_rotation $accelerometer_rotation
 fixterm
         else
             exit 1
