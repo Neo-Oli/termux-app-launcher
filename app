@@ -56,9 +56,10 @@ else
         if [ -z "$pattern" ];then
             app=`cat $cachefile | fzf`
         else
-            app=`cat $cachefile | fzf -f "$pattern"`
+            app=`cat $cachefile | fzf -f "$pattern"|head -n 1`
         fi
         if [ -n "$app" ];then
+            echo "Opening $app"
             # monkey messes with the rotation setting in android (why?), so we save it beforehand and restore it afterwards
             # This currently has a bug; if the user has locked the rotation to landscape running app will
             # Switch the rotation to portrait
